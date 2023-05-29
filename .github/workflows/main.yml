@@ -13,8 +13,8 @@ jobs:
 
     - name: Build
       run: |
-        python -m pip install -r requirements.txt
-        python app.py
+        python3 -m pip install -r requirements.txt
+        python3 app.py
         # export FLASK_APP=app
         # flask run
         echo "build is successfull"
