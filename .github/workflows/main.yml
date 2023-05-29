@@ -8,13 +8,13 @@ jobs:
   my-job:
     runs-on: self-hosted
     steps:
-      - name: repository-checkout
-        uses: actions/checkout@v3
+    - name: repository-checkout
+      uses: actions/checkout@v3
 
-        - name: Build
-          run: |
-            python -m pip install -r requirements.txt
-            python app.py
-            # export FLASK_APP=app
-            # flask run
-            echo "build is successfull"
+    - name: Build
+      run: |
+        python -m pip install -r requirements.txt
+        python app.py
+        # export FLASK_APP=app
+        # flask run
+        echo "build is successfull"
