@@ -49,6 +49,7 @@ jobs:
       - name: Deploy to server
         run: |
           python app.py
+          
 
 
 
