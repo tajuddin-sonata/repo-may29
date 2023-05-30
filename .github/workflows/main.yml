@@ -53,7 +53,7 @@ jobs:
             version_parts=(${version_number//./ })
             major=${version_parts[0]}
             minor=${version_parts[1]}
-            patch=${version_parts[0]}
+            patch=${version_parts[2]}
             ((patch++))
             version="v${major}.${minor}.${patch}"
           fi
@@ -65,7 +65,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
         with:
-          tag_name: ${{ steps.new_version.outputs.new_version }}
+          tag_name: ${{ (steps.new_version.outputs.new_version)+0.01 }}
           release_name: Release ${{ steps.new_version.outputs.new_version }}
           draft: false
           prerelease: false
