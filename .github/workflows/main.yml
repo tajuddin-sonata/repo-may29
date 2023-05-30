@@ -58,6 +58,8 @@ jobs:
             version="v${major}.${minor}.${patch}"
           fi
           echo "new_version=$version" >> $GITHUB_ENV
+        shell: bash
+
       - name: Download artifact
         uses: actions/download-artifact@v2
         with:
