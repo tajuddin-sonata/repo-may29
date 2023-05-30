@@ -28,7 +28,6 @@ jobs:
           # Copy app.py to a deployment directory
           mkdir deployment
           cp ./app.py deployment/app.py
-
       - name: Archive artifacts
         uses: actions/upload-artifact@v2
         with:
@@ -37,7 +36,7 @@ jobs:
 
   release:
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
       - name: Checkout code
@@ -59,7 +58,6 @@ jobs:
             version="v${major}.${minor}.${patch}"
           fi
           echo "new_version=$version" >> $GITHUB_ENV
-
       - name: Download artifact
         uses: actions/download-artifact@v2
         with:
@@ -130,4 +128,3 @@ jobs:
               }
             }
             downloadReleaseAsset();
-
