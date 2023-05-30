@@ -23,10 +23,9 @@ jobs:
 
       - name: Build artifacts
         run: |
-          # python app.py
-          # Copy app.py to a deployment directory.
           mkdir deployment
           cp ./app.py deployment/app.py
+
       - name: Archive artifacts
         uses: actions/upload-artifact@v2
         with:
@@ -41,27 +40,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # - name: Determine last release version
-      #   id: last_release
-      #   run: |
-      #     echo "last_version=v1.0.0" >> $GITHUB_ENV
-      #     echo "::set-output name=last_version::v1.0.0"
+      - name: Determine last release version
+        id: last_release
+        run: |
+          last_version=$(git describe --tags --abbrev=0 | cut -c 2- || echo "v1.0.0")
+          echo "::set-output name=last_version::$last_version"
 
       - name: Determine new version
         id: new_version
         run: |
-          last_version=$(git tag --sort=-version:refname | head -n 1 || echo "v1.0.0")
-          echo "Last version: $last_version"
-          if [[ $last_version == "v1.0.0" ]]; then
-            new_version="v1.0.1"
-          else
-            IFS='.' read -r major minor patch <<< "$last_version"
-            ((patch++))
-            new_version="v$major.$minor.$patch"
-          fi
-          echo "New version: $new_version"
+          last_version=${{ steps.last_release.outputs.last_version }}
+          IFS='.' read -r major minor patch <<< "$last_version"
+          ((patch++))
+          new_version="v$major.$minor.$patch"
           echo "::set-output name=new_version::$new_version"
-        shell: /usr/bin/bash -e {0}
 
       - name: Download artifact
         uses: actions/download-artifact@v2
@@ -132,4 +124,5 @@ jobs:
                 process.exit(1);
               }
             }
-            downloadReleaseAsset()
+            downloadReleaseAsset();
+
