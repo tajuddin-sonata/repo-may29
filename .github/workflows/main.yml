@@ -51,6 +51,7 @@ jobs:
         id: new_version
         run: |
           last_version=$(git tag --sort=-version:refname | head -n 1 || echo "v1.0.0")
+          echo "Last version: $last_version"
           if [[ $last_version == "v1.0.0" ]]; then
             new_version="v1.0.1"
           else
@@ -58,9 +59,10 @@ jobs:
             ((patch++))
             new_version="v$major.$minor.$patch"
           fi
+          echo "New version: $new_version"
           echo "::set-output name=new_version::$new_version"
         shell: /usr/bin/bash -e {0}
-        
+
       - name: Download artifact
         uses: actions/download-artifact@v2
         with:
