@@ -5,9 +5,6 @@ on:
     branches:
       - feature/taj
 
-env:
-  LAST_VERSION: "0.0.0"
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -26,7 +23,9 @@ jobs:
 
       - name: Build artifacts
         run: |
-          #python app.py
+          # Run your build command or script
+          # python app.py
+          # Copy app.py to a deployment directory
           mkdir deployment
           cp ./app.py deployment/app.py
       - name: Archive artifacts
@@ -43,21 +42,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Determine last release version
-        id: last_release
+      - name: Determine new version
+        id: new_version
         run: |
-          last_version="${{ env.LAST_VERSION }}"
-          IFS='.' read -ra version_parts <<< "$last_version"
-          major="${version_parts[0]}"
-          minor="${version_parts[1]}"
-          patch="${version_parts[2]}"
-          ((patch++))
-          new_version="${major}.${minor}.${patch}"
+          version=$(git tag --sort=-version:refname | head -n 1)
+          version_number=${version#v}
+          version_suffix=$(echo $version_number + 0.01 | bc)
+          new_version="v${version_suffix}"
           echo "::set-output name=new_version::$new_version"
-        shell: bash
-        env:
-          LAST_VERSION: ${{ env.LAST_VERSION }}
-
       - name: Download artifact
         uses: actions/download-artifact@v2
         with:
@@ -70,8 +62,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
         with:
-          tag_name: v${{ steps.last_release.outputs.new_version }}
-          release_name: Release ${{ steps.last_release.outputs.new_version }}
+          tag_name: ${{ steps.new_version.outputs.new_version }}
+          release_name: Release ${{ steps.new_version.outputs.new_version }}
           draft: false
           prerelease: false
 
@@ -85,10 +77,6 @@ jobs:
           asset_path: deployment/app.py
           asset_name: app.py
           asset_content_type: text/x-python
-
-      - name: Set new version as last version
-        run: |
-          echo "LAST_VERSION=${{ steps.last_release.outputs.new_version }}" >> $GITHUB_ENV
 
   deploy:
     needs: release
