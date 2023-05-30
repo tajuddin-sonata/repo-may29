@@ -46,7 +46,7 @@ jobs:
       - name: Determine new version
         id: new_version
         run: |
-          last_version=$(git describe --tags --abbrev=0 2>/dev/null)
+          last_version=$(git tag --sort=-version:refname | head -n 1 2>/dev/null)
           echo "Last version: $last_version"  # Debugging information
           if [ -z "$last_version" ]; then
             last_version="v0.0.0"
@@ -56,10 +56,10 @@ jobs:
           major=${version_parts[0]}
           minor=${version_parts[1]}
           patch=${version_parts[2]}
-          ((patch++))
-          new_version="${major}.${minor}.${patch}"
-          echo "New version: $new_version"  # Debugging information
-          echo "::set-output name=new_version::$new_version"
+         ((patch++))
+         new_version="${major}.${minor}.${patch}"
+         echo "New version: $new_version"  # Debugging information
+         echo "::set-output name=new_version::$new_version"
 
       - name: Download artifact
         uses: actions/download-artifact@v2
