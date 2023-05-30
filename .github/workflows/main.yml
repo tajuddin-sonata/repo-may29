@@ -43,13 +43,13 @@ jobs:
       - name: Determine last release version
         id: last_release
         run: |
-          last_version=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.0.0")
+          last_version=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.1")
           echo "::set-output name=last_version::$last_version"
 
       - name: Determine new version
         id: new_version
         run: |
-          last_version=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.0.0")
+          last_version=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.1")
           version_parts=($(echo "$last_version" | cut -d '.' -f 2-))
           major=${version_parts[0]}
           minor=${version_parts[1]}
