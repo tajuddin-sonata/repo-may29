@@ -58,11 +58,6 @@ jobs:
             version="v${major}.${minor}.${patch}"
           fi
           echo "::set-output name=new_version::$version"
-      - name: Download artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: my-artifacts
-          path: deployment
 
       - name: Create release
         id: create_release
