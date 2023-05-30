@@ -53,7 +53,7 @@ jobs:
           version_parts=($(echo "$last_version" | cut -d '.' -f 2-))
           patch=$((version_parts[2]+1))
           new_version="v${version_parts[0]}.${version_parts[1]}.$patch"
-          echo "::set-output name=new_version::$new_version"
+          echo "new_version=$new_version" >> $GITHUB_ENV
 
       - name: Download artifact
         uses: actions/download-artifact@v2
@@ -67,8 +67,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
         with:
-          tag_name: ${{ steps.new_version.outputs.new_version }}
-          release_name: Release ${{ steps.new_version.outputs.new_version }}
+          tag_name: ${{ env.new_version}}
+          release_name: Release ${{ env.new_version }}
           draft: false
           prerelease: false
 
