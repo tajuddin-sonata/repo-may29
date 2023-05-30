@@ -50,12 +50,7 @@ jobs:
           IFS='.' read -r major minor patch <<< "$last_version"
           ((patch++))
           new_version="${major}.${minor}.${patch}"
-          echo $new_version >> version.txt
-
-      - name: Read new version
-        id: read_version
-        run: |
-          echo "::set-output name=new_version::$(cat version.txt)"
+          echo "::set-output name=new_version::${new_version}"
 
       - name: Download artifact
         uses: actions/download-artifact@v2
@@ -69,8 +64,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
         with:
-          tag_name: v${{ steps.read_version.outputs.new_version }}
-          release_name: Release ${{ steps.read_version.outputs.new_version }}
+          tag_name: v${{ steps.last_release.outputs.new_version }}
+          release_name: Release ${{ steps.last_release.outputs.new_version }}
           draft: false
           prerelease: false
 
@@ -87,7 +82,7 @@ jobs:
 
       - name: Set new version as last version
         run: |
-          echo "LAST_VERSION=${{ steps.read_version.outputs.new_version }}" >> $GITHUB_ENV
+          echo "LAST_VERSION=${{ steps.last_release.outputs.new_version }}" >> $GITHUB_ENV
 
   deploy:
     needs: release
