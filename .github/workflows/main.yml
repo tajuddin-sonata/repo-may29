@@ -45,9 +45,11 @@ jobs:
       - name: Determine last release version
         id: last_release
         run: |
-          new_version="0.0.0"
-          echo "::set-output name=new_version::$new_version"
-
+          last_version="${{ env.LAST_VERSION }}"
+          IFS='.' read -r major minor patch <<< "$last_version"
+          ((patch++))
+          new_version="${major}.${minor}.${patch}"
+          echo "::set-output name=new_version::${new_version}"
 
       - name: Download artifact
         uses: actions/download-artifact@v2
@@ -81,6 +83,8 @@ jobs:
       - name: Set new version as last version
         run: |
           echo "LAST_VERSION=${{ steps.last_release.outputs.new_version }}" >> $GITHUB_ENV
+  
+  
   deploy:
     needs: release
     runs-on: ubuntu-latest
@@ -123,4 +127,3 @@ jobs:
               }
             }
             downloadReleaseAsset();
-
