@@ -47,10 +47,10 @@ jobs:
         id: new_version
         run: |
           new_version=$(git tag --sort=-version:refname | head -n 1)
-          if [ -z "$version" ]; then
-            version="v1.0.0"
+          if [ -z "$new_version" ]; then
+            new_version="v1.0.0"
           else
-            version_number=${version#v}
+            version_number=${new_version#v}
             version_parts=(${version_number//./ })
             major=${version_parts[0]}
             minor=${version_parts[1]}
@@ -125,3 +125,4 @@ jobs:
               }
             }
             downloadReleaseAsset();
+
