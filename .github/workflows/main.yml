@@ -45,7 +45,9 @@ jobs:
       - name: Determine last release version
         id: last_release
         run: |
+          cat "${{ github.workspace }}/version.txt" # Display file content for debugging
           last_version=$(cat "${{ github.workspace }}/version.txt")
+          echo "Last version: $last_version" # Display the value of last_version for debugging
           IFS='.' read -r major minor patch <<< "$last_version"
           ((patch++))
           new_version="${major}.${minor}.${patch}"
