@@ -47,7 +47,7 @@ jobs:
         run: |
           latest_tag=$(git ls-remote --tags origin | awk '{print $2}' | grep -E -o 'refs/tags/v[0-9]+\.[0-9]+\.[0-9]+' | sort -V | tail -n 1)
           if [ -z "$latest_tag" ]; then
-            version="v1.0.0"
+             version="v1.0.0"
           else
             version_number=$(echo "$latest_tag" | grep -E -o '[0-9]+\.[0-9]+\.[0-9]+')
             version_parts=(${version_number//./ })
