@@ -5,6 +5,9 @@ on:
     branches:
       - feature/taj
 
+env:
+  LAST_VERSION: "0.0.0"
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -26,7 +29,7 @@ jobs:
           # Build your artifacts here
           # For example, you can run any build commands or generate the necessary files
           # In this case, let's assume app.py is the main file to deploy
-          # Copy or generate any other required files as well.
+          # Copy or generate any other required files as well
           # Run your build command or script
           # python app.py
           # Copy app.py to a deployment directory
@@ -50,10 +53,7 @@ jobs:
       - name: Determine last release version
         id: last_release
         run: |
-          last_version="0.0.0"
-          if [[ -n "${{ env.LAST_VERSION }}" ]]; then
-            last_version="${{ env.LAST_VERSION }}"
-          fi
+          last_version="${{ env.LAST_VERSION }}"
           IFS='.' read -r major minor patch <<< "$last_version"
           ((patch++))
           new_version="${major}.${minor}.${patch}"
