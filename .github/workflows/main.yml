@@ -45,15 +45,25 @@ jobs:
       - name: Determine new version
         id: new_version
         run: |
+
           version=$(git tag --sort=-version:refname | head -n 1)
           if [ -z "$version" ]; then
             version="v0.0.0"
           fi
           version_number=${version#v}
-          version_parts=(${version_number//./ })
-          major=${version_parts[0]}
-          minor=${version_parts[1]}
-          patch=${version_parts[2]}
+          version_suffix=$(echo $(${version_number//./ }) | bc)
+          # new_version="v${version_suffix}"
+
+
+          # version=$(git tag --sort=-version:refname | head -n 1)
+          # if [ -z "$version" ]; then
+          #   version="v0.0.0"
+          # fi
+          # version_number=${version#v}
+          # version_parts=(${version_number//./ })
+          major=${version_suffix[0]}
+          minor=${version_suffix[1]}
+          patch=${version_suffix[2]}
           ((patch++))
           new_version="v${major}.${minor}.${patch}"
           echo "::set-output name=new_version::$new_version"
