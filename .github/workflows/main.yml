@@ -6,7 +6,7 @@ on:
       - feature/taj
 
 env:
-  LAST_VERSION: "0.0.0"
+  LAST_VERSION: "1.0.0"
 
 jobs:
   build:
