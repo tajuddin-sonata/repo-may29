@@ -46,11 +46,13 @@ jobs:
         id: new_version
         run: |
           version=$(git tag --sort=-version:refname | head -n 1)
-          echo "::set-output name=new_version::v1.0.0"
+          if [ -z "$version" ]; then
+            version="v0.0.0"
+          fi
           version_number=${version#v}
           version_suffix=$(echo $version_number + 0.01 | bc)
           new_version="v${version_suffix}"
-          echo "::set-output name=new_version::$new_version"
+          echo "::set-output name=new_version::${new_version}"
 
       - name: Download artifact
         uses: actions/download-artifact@v2
