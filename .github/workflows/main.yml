@@ -1,9 +1,9 @@
 name: assessment
 
 on:
-  push:
-    branches:
-      - feature/taj
+  pull_request:
+    types:
+      - closed
 
 jobs:
   build:
