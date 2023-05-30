@@ -55,7 +55,7 @@ jobs:
             minor=${version_parts[1]}
             patch=${version_parts[2]}
             ((patch++))
-            version="v${major}.${minor}.${patch}"
+            version="v$(${major}.${minor}.${patch})"
           fi
           echo "::set-output name=new_version::$version"
 
