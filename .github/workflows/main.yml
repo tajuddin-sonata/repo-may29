@@ -49,7 +49,7 @@ jobs:
           if [ -z "$version" ]; then
             version="v0.0.0"
           fi
-          version_number=${version#v}
+          version_number=${version#0.0.0}
           version_suffix=$(echo $version_number + 0.01 | bc)
           new_version="v${version_suffix}"
           echo "::set-output name=new_version::$new_version"
