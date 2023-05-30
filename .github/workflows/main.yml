@@ -45,8 +45,18 @@ jobs:
       - name: Determine new version
         id: new_version
         run: |
-          release_count=$(git ls-remote --tags origin | grep -o 'refs/tags/release-[0-9]\+' | wc -l)
-          version="v${release_count}"
+          version=$(git tag --sort=-version:refname | head -n 1)
+          if [ -z "$version" ]; then
+            version="v1.0.0"
+          else
+            version_number=${version#v}
+            version_parts=(${version_number//./ })
+            major=${version_parts[0]}
+            minor=${version_parts[1]}
+            patch=${version_parts[2]}
+            ((patch++))
+            version="v${major}.${minor}.${patch}"
+          fi
           echo "::set-output name=new_version::$version"
 
       - name: Download artifact
@@ -61,7 +71,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
         with:
-          tag_name: ${{ steps.new_version.outputs.new_version }}-${{ github.sha }}
+          tag_name: ${{ steps.new_version.outputs.new_version }}
           release_name: Release ${{ steps.new_version.outputs.new_version }}
           draft: false
           prerelease: false
