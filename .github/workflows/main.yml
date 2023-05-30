@@ -45,11 +45,11 @@ jobs:
       - name: Determine new version
         id: new_version
         run: |
-          version=$(git tag --sort=-version:refname | head -n 1)
-          if [ -z "$version" ]; then
+          last_release=$(git describe --tags --abbrev=0)
+          if [ -z "$last_release" ]; then
             version="v1.0.0"
           else
-            version_number=${version#v}
+            version_number=$(echo "$last_release" | grep -E -o '[0-9]+\.[0-9]+\.[0-9]+')
             version_parts=(${version_number//./ })
             major=${version_parts[0]}
             minor=${version_parts[1]}
@@ -58,8 +58,6 @@ jobs:
             version="v${major}.${minor}.${patch}"
           fi
           echo "::set-output name=new_version::$version"
-          echo "VERSION=$version" >> $GITHUB_ENV
-
 
       - name: Create release
         id: create_release
