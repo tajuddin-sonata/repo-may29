@@ -87,6 +87,10 @@ jobs:
           asset_name: app.py
           asset_content_type: text/x-python
 
+      - name: Set new version as last version
+        run: |
+          echo "::set-env name=LAST_VERSION::${{ env.NEW_VERSION }}"
+
   deploy:
     needs: release
     runs-on: ubuntu-latest
