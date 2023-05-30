@@ -42,31 +42,27 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: List workspace contents
-        run: |
-          ls -l "${{ github.workspace }}"
-
       - name: Determine last release version
         id: last_release
         run: |
+          ls -l
+          cat "${{ github.workspace }}/version.txt"
           last_version=$(cat "${{ github.workspace }}/version.txt")
           echo "Last version: $last_version"
           IFS='.' read -r major minor patch <<< "$last_version"
           ((patch++))
           new_version="${major}.${minor}.${patch}"
           echo "::set-output name=new_version::${new_version}"
-
+      
       - name: Debug output
         run: |
           echo "new_version: ${{ steps.last_release.outputs.new_version }}"
           echo "GITHUB_WORKSPACE: ${{ github.workspace }}"
-          echo "Contents of ${{ github.workspace }}/version.txt:"
-          cat "${{ github.workspace }}/version.txt"
-
+      
       - name: Check file permissions
         run: |
           ls -l "${{ github.workspace }}/version.txt"
-
+      
       - name: Debug output
         run: |
           echo "new_version: ${{ steps.last_release.outputs.new_version }}"
@@ -147,3 +143,4 @@ jobs:
               }
             }
             downloadReleaseAsset();
+
