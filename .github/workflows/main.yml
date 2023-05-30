@@ -49,7 +49,7 @@ jobs:
       - name: Determine new version
         id: new_version
         run: |
-          last_version=${{ steps.last_release.outputs.last_version }}
+          last_version="v1.0.0"
           IFS='.' read -r major minor patch <<< "$(echo "$last_version" | cut -d '.' -f 2-)"
           ((patch++))
           new_version="v$major.$minor.$patch"
