@@ -53,7 +53,7 @@ jobs:
           version_parts=($(echo "$last_version" | cut -d '.' -f 2-))
           major=${version_parts[0]}
           minor=${version_parts[1]}
-          patch=$((version_parts[2]+1))
+          patch=$((version_parts[1]+1))
           new_version="v${major}.${minor}$patch"
           echo "NEW_VERSION=$new_version" >> $GITHUB_ENV
 
