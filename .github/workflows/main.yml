@@ -46,7 +46,7 @@ jobs:
       - name: Determine last release version
         id: last_release
         run: |
-          last_version=$LAST_VERSION
+          last_version="${{ env.LAST_VERSION }}"
           IFS='.' read -ra version_parts <<< "$last_version"
           major=${version_parts[0]}
           minor=${version_parts[1]}
