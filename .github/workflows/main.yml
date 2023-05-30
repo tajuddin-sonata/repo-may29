@@ -55,9 +55,9 @@ jobs:
             minor=${version_parts[1]}
             patch=${version_parts[2]}
             ((patch++))
-            version="v${major}.${minor}.${patch}"
+            new_version="v${major}.${minor}.${patch}"
           fi
-          echo "::set-output name=new_version::$version"
+          echo "::set-output name=new_version::$new_version"
 
       - name: Create release
         id: create_release
@@ -65,7 +65,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
         with:
-          tag_name: ${{ (steps.new_version.outputs.new_version)+0.01 }}
+          tag_name: ${{ steps.new_version.outputs.new_version }}
           release_name: Release ${{ steps.new_version.outputs.new_version }}
           draft: false
           prerelease: false
