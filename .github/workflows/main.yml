@@ -48,9 +48,9 @@ jobs:
         run: |
           last_version="${{ env.LAST_VERSION }}"
           IFS='.' read -ra version_parts <<< "$last_version"
-          major=${version_parts[0]}
-          minor=${version_parts[1]}
-          patch=${version_parts[2]}
+          major="${version_parts[0]}"
+          minor="${version_parts[1]}"
+          patch="${version_parts[2]}"
           ((patch++))
           new_version="${major}.${minor}.${patch}"
           echo "::set-output name=new_version::$new_version"
