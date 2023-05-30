@@ -24,7 +24,7 @@ jobs:
       - name: Build artifacts
         run: |
           # python app.py
-          # Copy app.py to a deployment directory
+          # Copy app.py to a deployment directory.
           mkdir deployment
           cp ./app.py deployment/app.py
       - name: Archive artifacts
@@ -44,17 +44,17 @@ jobs:
       - name: Determine last release version
         id: last_release
         run: |
-          echo "last_version=1.0.0" >> $GITHUB_ENV
-          echo "::set-output name=last_version::1.0.0"
+          echo "last_version=v1.0.0" >> $GITHUB_ENV
+          echo "::set-output name=last_version::v1.0.0"
       - name: Determine new version
         id: new_version
         run: |
           last_version=${{ steps.last_release.outputs.last_version }}
-          if [[ $last_version == "1.0.0" ]]; then
-            new_version="1.0.1"
+          if [[ $last_version == "v1.0.0" ]]; then
+            new_version="v1.0.1"
           else
             IFS='.' read -r major minor patch <<< "$last_version"
-            ((minor++))
+            ((patch++))
             new_version=v"$major.$minor.$patch"
           fi
           echo "::set-output name=new_version::$new_version"
