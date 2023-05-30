@@ -24,7 +24,7 @@ jobs:
       - name: Build artifacts
         run: |
           # python app.py
-          # Copy app.py to a deployment directory
+          # Copy app.py to a deployment directory.
           mkdir deployment
           cp ./app.py deployment/app.py
       - name: Archive artifacts
