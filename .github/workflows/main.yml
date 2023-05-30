@@ -52,6 +52,11 @@ jobs:
           ((patch++))
           new_version="${major}.${minor}.${patch}"
           echo "::set-output name=new_version::${new_version}"
+      
+      - name: Debug output
+        run: |
+          echo "new_version: ${{ steps.last_release.outputs.new_version }}"
+          echo "GITHUB_WORKSPACE: ${{ github.workspace }}"
 
       - name: Download artifact
         uses: actions/download-artifact@v2
