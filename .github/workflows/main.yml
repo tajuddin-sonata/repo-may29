@@ -52,7 +52,7 @@ jobs:
           last_version=${{ steps.last_release.outputs.last_version }}
           version_parts=($(echo "$last_version" | cut -d '.' -f 2-))
           patch=$((version_parts[2]+1))
-          new_version="v${version_parts[0]}.${version_parts[1]}.$patch"
+          new_version="v${version_parts[0]}.${version_parts[1]}$patch"
           echo "::set-output name=new_version::$new_version"
 
 
