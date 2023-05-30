@@ -58,7 +58,7 @@ jobs:
           patch=${version_parts[2]}
           ((patch++))
           new_version="${major}.${minor}.${patch}"
-          echo "New version: $new_version"  # Debugging information
+          # echo "New version: $new_version"  # Debugging information
           echo "::set-output name=new_version::$new_version"
 
       - name: Download artifact
