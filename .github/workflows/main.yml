@@ -52,7 +52,7 @@ jobs:
           last_version="v1.0.0"
           version_parts=($(echo "$last_version" | cut -d '.' -f 2-))
           patch=$((version_parts[2]+1))
-          new_version="v${version_parts[0]}.${version_parts[1]}.$patch"
+          new_version="v${version_parts[0]}.${version_parts[1]}$patch"
           echo "NEW_VERSION=$new_version" >> $GITHUB_ENV
 
       - name: Download artifact
