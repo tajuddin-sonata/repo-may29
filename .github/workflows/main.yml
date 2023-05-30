@@ -1,4 +1,101 @@
-atest
+name: assessment
+
+on:
+  push:
+    branches:
+      - feature/taj
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Build artifacts
+        run: |
+          # Run your build command or script
+          # python app.py
+          # Copy app.py to a deployment directory
+          mkdir deployment
+          cp ./app.py deployment/app.py
+
+      - name: Archive artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: my-artifacts
+          path: deployment
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Determine new version
+        id: new_version
+        run: |
+          last_version=$(git describe --tags --abbrev=0 2>/dev/null)
+          echo "Last version: $last_version"  # Debugging information
+          if [ -z "$last_version" ]; then
+            last_version="v0.0.0"
+          fi
+          echo "Using version: $last_version"  # Debugging information
+          version_parts=(${last_version//./ })
+          major=${version_parts[0]}
+          minor=${version_parts[1]}
+          patch=${version_parts[2]}
+          ((patch++))
+          new_version="${major}.${minor}.${patch}"
+          echo "New version: $new_version"  # Debugging information
+          echo "::set-output name=new_version::$new_version"
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git tag ${{ steps.new_version.outputs.new_version }}
+          git push origin ${{ steps.new_version.outputs.new_version }}
+
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: my-artifacts
+          path: deployment
+
+      - name: Create release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+        with:
+          tag_name: ${{ steps.new_version.outputs.new_version }}
+          release_name: Release ${{ steps.new_version.outputs.new_version }}
+          draft: false
+          prerelease: false
+
+      - name: Upload release asset
+        id: upload_asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: deployment/app.py
+          asset_name: app.py
+          asset_content_type: text/x-python
+
+  deploy:
+    needs: release
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
