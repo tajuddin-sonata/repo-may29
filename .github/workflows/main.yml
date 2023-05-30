@@ -55,9 +55,9 @@ jobs:
             minor=${version_parts[1]}
             patch=${version_parts[2]}
             ((patch++))
-            new_version="v${major}.${minor}.${patch}"
+            version="v${major}.${minor}.${patch}"
           fi
-          echo "::set-output name=new_version::$new_version"
+          echo "::set-output name=new_version::$version"
       - name: Download artifact
         uses: actions/download-artifact@v2
         with:
