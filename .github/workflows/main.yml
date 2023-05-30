@@ -23,7 +23,6 @@ jobs:
 
       - name: Build artifacts
         run: |
-          # Run your build command or script
           # python app.py
           # Copy app.py to a deployment directory
           mkdir deployment
@@ -42,13 +41,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Determine last release version
+        id: last_release
+        run: |
+          echo "last_version=v1.0.0" >> $GITHUB_ENV
+          echo "::set-output name=last_version::v1.0.0"
       - name: Determine new version
         id: new_version
         run: |
-          version=$(git tag --sort=-version:refname | head -n 1)
-          version_number=${version#v}
-          version_suffix=$(echo $version_number + 0.01 | bc)
-          new_version="v${version_suffix}"
+          last_version=${{ steps.last_release.outputs.last_version }}
+          if [[ $last_version == "v1.0.0" ]]; then
+            new_version="v1.0.1"
+          else
+            IFS='.' read -r major minor patch <<< "$last_version"
+            ((patch++))
+            new_version=v"$major.$minor.$patch"
+          fi
           echo "::set-output name=new_version::$new_version"
       - name: Download artifact
         uses: actions/download-artifact@v2
@@ -120,6 +128,3 @@ jobs:
               }
             }
             downloadReleaseAsset();
-
-
-
