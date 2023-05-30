@@ -57,7 +57,7 @@ jobs:
           IFS='.' read -r major minor patch <<< "$last_version"
           ((patch++))
           new_version="${major}.${minor}.${patch}"
-          echo "::set-env name=NEW_VERSION::${new_version}"
+          echo "NEW_VERSION=${new_version}" >> $GITHUB_ENV
 
       - name: Download artifact
         uses: actions/download-artifact@v2
@@ -89,7 +89,7 @@ jobs:
 
       - name: Set new version as last version
         run: |
-          echo "::set-env name=LAST_VERSION::${{ env.NEW_VERSION }}"
+          echo "LAST_VERSION=${{ env.NEW_VERSION }}" >> $GITHUB_ENV
 
   deploy:
     needs: release
