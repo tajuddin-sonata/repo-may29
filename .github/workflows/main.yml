@@ -23,7 +23,7 @@ jobs:
 
       - name: Build artifacts
         run: |
-          # Run your build command or script
+          # Run your build command or script.
           # python app.py
           # Copy app.py to a deployment directory
           mkdir deployment
