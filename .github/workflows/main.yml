@@ -46,7 +46,7 @@ jobs:
       - name: Determine new version
         id: new_version
         run: |
-          version=$(git tag --sort=-version:refname | head -n 1)
+          new_version=$(git tag --sort=-version:refname | head -n 1)
           if [ -z "$version" ]; then
             version="v1.0.0"
           else
