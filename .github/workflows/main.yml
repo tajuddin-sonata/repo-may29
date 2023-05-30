@@ -48,13 +48,8 @@ jobs:
         run: |
           last_version="${{ env.LAST_VERSION }}"
           IFS='.' read -r major minor patch <<< "$last_version"
+          ((patch++))
           new_version="${major}.${minor}.${patch}"
-
-          while git rev-parse --quiet --verify "refs/tags/v${new_version}" >/dev/null; do
-            ((patch++))
-            new_version="${major}.${minor}.${patch}"
-          done
-
           echo "::set-output name=new_version::${new_version}"
 
       - name: Download artifact
