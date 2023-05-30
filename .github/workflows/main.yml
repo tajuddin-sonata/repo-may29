@@ -23,7 +23,7 @@ jobs:
 
       - name: Build artifacts
         run: |
-          # Run your build command or script.
+          # Run your build command or script
           # python app.py
           # Copy app.py to a deployment directory
           mkdir deployment
@@ -45,11 +45,17 @@ jobs:
       - name: Determine new version
         id: new_version
         run: |
-          version=$(git tag --sort=-version:refname | head -n 1)
-          version_number=${version#v}
-          version_suffix=$(echo $version_number + 0.01 | bc)
-          new_version="v${version_suffix}"
+          last_version=$(git describe --tags --abbrev=0)
+          version_parts=(${last_version//./ })
+          major=${version_parts[0]}
+          minor=${version_parts[1]}
+          patch=${version_parts[2]}
+          ((patch++))
+          new_version="${major}.${minor}.${patch}"
           echo "::set-output name=new_version::$new_version"
+        shell: bash
+
+
       - name: Download artifact
         uses: actions/download-artifact@v2
         with:
