@@ -47,7 +47,7 @@ jobs:
         id: new_version
         run: |
           last_version=$(git tag --sort=-version:refname | head -n 1 2>/dev/null)
-          echo "Last version: $last_version"  # Debugging information
+          # echo "Last version: $last_version"  # Debugging information
           if [ -z "$last_version" ]; then
             last_version="v0.0.0"
           fi
