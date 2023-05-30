@@ -50,7 +50,7 @@ jobs:
         id: new_version
         run: |
           last_version=${{ steps.last_release.outputs.last_version }}
-          IFS='.' read -r major minor patch <<< "$last_version"
+          IFS='.' read -r major minor patch <<< "$(echo "$last_version" | cut -c 2-)"
           ((patch++))
           new_version="v$major.$minor.$patch"
           echo "::set-output name=new_version::$new_version"
