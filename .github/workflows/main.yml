@@ -28,6 +28,7 @@ jobs:
           # Copy app.py to a deployment directory
           mkdir deployment
           cp ./app.py deployment/app.py
+
       - name: Archive artifacts
         uses: actions/upload-artifact@v2
         with:
@@ -45,20 +46,20 @@ jobs:
       - name: Determine new version
         id: new_version
         run: |
-          latest_tag=$(git ls-remote --tags origin | awk '{print $2}' | grep -E -o 'refs/tags/v[0-9]+\.[0-9]+\.[0-9]+' | sort -V | tail -n 1)
-          if [ -z "$latest_tag" ]; then
-             version="v1.0.0"
+          version=$(git tag --sort=-version:refname | head -n 1)
+          if [ -z "$version" ]; then
+            version="v1.0.0"
           else
-            version_number=$(echo "$latest_tag" | grep -E -o '[0-9]+\.[0-9]+\.[0-9]+')
+            version_number=${version#v}
             version_parts=(${version_number//./ })
             major=${version_parts[0]}
             minor=${version_parts[1]}
             patch=${version_parts[2]}
             ((patch++))
-            version="v${major}.${minor}.${patch}"
+            new_version="v${major}.${minor}.${patch}"
           fi
-          echo "::set-output name=new_version::$version"
-        shell: bash
+          echo "::set-output name=new_version::$new_version"
+          echo "VERSION=$new_version" >> $GITHUB_ENV
 
       - name: Create release
         id: create_release
@@ -66,12 +67,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
         with:
-          tag_name: ${{ steps.new_version.outputs.new_version }}
-          release_name: Release ${{ steps.new_version.outputs.new_version }}
+          tag_name: ${{ env.VERSION }}
+          release_name: Release ${{ env.VERSION }}
           draft: false
           prerelease: false
-
-
 
       - name: Upload release asset
         id: upload_asset
