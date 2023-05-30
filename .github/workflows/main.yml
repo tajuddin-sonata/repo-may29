@@ -28,6 +28,7 @@ jobs:
           # Copy app.py to a deployment directory
           mkdir deployment
           cp ./app.py deployment/app.py
+
       - name: Archive artifacts
         uses: actions/upload-artifact@v2
         with:
@@ -47,17 +48,17 @@ jobs:
         run: |
           version=$(git ls-remote --tags origin | awk '{print $2}' | grep -E -o 'refs/tags/v[0-9]+\.[0-9]+\.[0-9]+' | sort -V | tail -n 1)
           if [ -z "$version" ]; then
-            version="1.0.0"
+            version="v1.0.0"
           else
             version_number=${version#v}
             version_parts=(${version_number//./ })
             major=${version_parts[0]}
             minor=${version_parts[1]}
             patch=${version_parts[2]}
-            $((patch++))
-            version="v$(${major}.${minor}.${patch})"
+            ((patch++))
+            version="v${major}.${minor}.${patch}"
           fi
-          echo "::set-output name=new_version::$version"
+          echo "new_version=$version" >> $GITHUB_ENV
 
       - name: Download artifact
         uses: actions/download-artifact@v2
@@ -71,8 +72,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
         with:
-          tag_name: ${{ steps.new_version.outputs.new_version }}
-          release_name: Release ${{ steps.new_version.outputs.new_version }}
+          tag_name: ${{ env.new_version }}
+          release_name: Release ${{ env.new_version }}
           draft: false
           prerelease: false
 
@@ -129,3 +130,4 @@ jobs:
               }
             }
             downloadReleaseAsset();
+
