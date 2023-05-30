@@ -51,7 +51,7 @@ jobs:
           if [ -z "$last_version" ]; then
             last_version="v0.0.0"
           fi
-          echo "Using version: $last_version"  # Debugging information
+          # echo "Using version: $last_version"  # Debugging information
           version_parts=(${last_version//./ })
           major=${version_parts[0]}
           minor=${version_parts[1]}
