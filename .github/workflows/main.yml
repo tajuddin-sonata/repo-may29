@@ -49,10 +49,12 @@ jobs:
       - name: Determine new version
         id: new_version
         run: |
-          last_version=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.1")
+          last_version=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.0.0")
           version_parts=($(echo "$last_version" | cut -d '.' -f 2-))
+          major=${version_parts[0]}
+          minor=${version_parts[1]}
           patch=$((version_parts[2]+1))
-          new_version="v${version_parts[0]}.${version_parts[1]}.$patch"
+          new_version="v${major}.${minor}.$patch"
           echo "NEW_VERSION=$new_version" >> $GITHUB_ENV
 
       - name: Download artifact
