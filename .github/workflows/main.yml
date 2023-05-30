@@ -58,7 +58,7 @@ jobs:
             version="v${major}.${minor}.${patch}"
           fi
           echo "::set-output name=new_version::$version"
-        shell: /usr/bin/bash
+        shell: bash
 
       - name: Create release
         id: create_release
