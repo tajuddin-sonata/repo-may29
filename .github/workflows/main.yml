@@ -46,7 +46,7 @@ jobs:
       - name: Determine new version
         id: new_version
         run: |
-          last_version=$(git tag --sort=-version:refname | head -n 1)
+          last_version=$(git for-each-ref --sort=-taggerdate --format '%(refname:short)' refs/tags | head -n 1)
           echo "Last version: $last_version"  # Debugging information
           if [ -z "$last_version" ]; then
             last_version="v0.0.0"
@@ -131,4 +131,3 @@ jobs:
               }
             }
             downloadReleaseAsset();
-
