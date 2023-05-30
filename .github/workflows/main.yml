@@ -28,7 +28,6 @@ jobs:
         run: |
           mkdir deployment
           cp ./app.py deployment/app.py
-
       - name: Archive artifacts
         uses: actions/upload-artifact@v2
         with:
@@ -46,7 +45,7 @@ jobs:
       - name: Determine last release version
         id: last_release
         run: |
-          last_version=$(cat ${{ env.LAST_VERSION_FILE }})
+          last_version=$(cat ${{ github.workspace }}/version.txt)
           IFS='.' read -r major minor patch <<< "$last_version"
           ((patch++))
           new_version="${major}.${minor}.${patch}"
@@ -83,7 +82,8 @@ jobs:
       - name: Set new version as last version
         run: |
           echo "${{ steps.last_release.outputs.new_version }}" > ${{ env.LAST_VERSION_FILE }}
-
+  
+  
   deploy:
     needs: release
     runs-on: ubuntu-latest
@@ -126,4 +126,3 @@ jobs:
               }
             }
             downloadReleaseAsset();
-
