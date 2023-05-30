@@ -27,6 +27,7 @@ jobs:
           # Copy app.py to a deployment directory.
           mkdir deployment
           cp ./app.py deployment/app.py
+
       - name: Archive artifacts
         uses: actions/upload-artifact@v2
         with:
@@ -46,6 +47,7 @@ jobs:
         run: |
           echo "last_version=v1.0.0" >> $GITHUB_ENV
           echo "::set-output name=last_version::v1.0.0"
+
       - name: Determine new version
         id: new_version
         run: |
@@ -55,9 +57,10 @@ jobs:
           else
             IFS='.' read -r major minor patch <<< "$last_version"
             ((patch++))
-            new_version=v"$major.$minor.$patch"
+            new_version="v$major.$minor.$patch"
           fi
           echo "::set-output name=new_version::$new_version"
+
       - name: Download artifact
         uses: actions/download-artifact@v2
         with:
@@ -127,4 +130,5 @@ jobs:
                 process.exit(1);
               }
             }
-            downloadReleaseAsset();
+            downloadReleaseAsset()
+
