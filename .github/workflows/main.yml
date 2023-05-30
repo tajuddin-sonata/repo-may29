@@ -41,11 +41,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Determine last release version
-        id: last_release
-        run: |
-          echo "last_version=v1.0.0" >> $GITHUB_ENV
-          echo "::set-output name=last_version::v1.0.0"
+      # - name: Determine last release version
+      #   id: last_release
+      #   run: |
+      #     echo "last_version=v1.0.0" >> $GITHUB_ENV
+      #     echo "::set-output name=last_version::v1.0.0"
+
       - name: Determine new version
         id: new_version
         run: |
@@ -59,6 +60,7 @@ jobs:
           fi
           echo "::set-output name=new_version::$new_version"
         shell: /usr/bin/bash -e {0}
+        
       - name: Download artifact
         uses: actions/download-artifact@v2
         with:
