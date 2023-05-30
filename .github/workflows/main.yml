@@ -6,7 +6,7 @@ on:
       - feature/taj
 
 env:
-  LAST_VERSION_FILE: version.txt
+  LAST_VERSION: "0.0.0"
 
 jobs:
   build:
@@ -45,29 +45,8 @@ jobs:
       - name: Determine last release version
         id: last_release
         run: |
-          ls -l
-          cat "${{ github.workspace }}/version.txt"
-          last_version=$(cat "${{ github.workspace }}/version.txt")
-          echo "Last version: $last_version"
-          IFS='.' read -r major minor patch <<< "$last_version"
-          ((patch++))
-          new_version="${major}.${minor}.${patch}"
-          echo "::set-output name=new_version::${new_version}"
-      
-      - name: Debug output
-        run: |
-          echo "new_version: ${{ steps.last_release.outputs.new_version }}"
-          echo "GITHUB_WORKSPACE: ${{ github.workspace }}"
-      
-      - name: Check file permissions
-        run: |
-          ls -l "${{ github.workspace }}/version.txt"
-      
-      - name: Debug output
-        run: |
-          echo "new_version: ${{ steps.last_release.outputs.new_version }}"
-          echo "GITHUB_WORKSPACE: ${{ github.workspace }}"
-
+          new_version="0.0.0"
+          echo "::set-output name=new_version::$new_version"
       - name: Download artifact
         uses: actions/download-artifact@v2
         with:
@@ -98,9 +77,7 @@ jobs:
 
       - name: Set new version as last version
         run: |
-          echo "${{ steps.last_release.outputs.new_version }}" > ${{ env.LAST_VERSION_FILE }}
-  
-  
+          echo "LAST_VERSION=${{ steps.last_release.outputs.new_version }}" >> $GITHUB_ENV
   deploy:
     needs: release
     runs-on: ubuntu-latest
@@ -143,4 +120,3 @@ jobs:
               }
             }
             downloadReleaseAsset();
-
