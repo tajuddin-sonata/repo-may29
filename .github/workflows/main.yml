@@ -49,10 +49,13 @@ jobs:
           if [ -z "$version" ]; then
             version="v0.0.0"
           fi
-          version_number=${version#v}
-          version_suffix=$(echo $version_number + 0.01 | bc)
-          new_version="v${version_suffix}"
-          echo "::set-output name=new_version::${new_version + 0.01}"
+          version_parts=(${version//./ })
+          major=${version_parts[0]}
+          minor=${version_parts[1]}
+          patch=${version_parts[2]}
+          ((patch++))
+          new_version="${major}.${minor}.${patch}"
+          echo "::set-output name=new_version::$new_version"
 
       - name: Download artifact
         uses: actions/download-artifact@v2
