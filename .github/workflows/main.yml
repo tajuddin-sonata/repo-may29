@@ -45,17 +45,9 @@ jobs:
       - name: Determine new version
         id: new_version
         run: |
-          version=$(git tag --sort=-version:refname | head -n 1)
-          if [ -z "$version" ]; then
-            version="v0.0.0"
-          fi
-          version_parts=(${version//./ })
-          major=${version_parts[0]}
-          minor=${version_parts[1]}
-          patch=${version_parts[2]}
-          ((patch++))
-          new_version="${major}.${minor}.${patch}"
-          echo "::set-output name=new_version::$new_version"
+          release_count=$(git ls-remote --tags origin | grep -o 'refs/tags/release-[0-9]\+' | wc -l)
+          version="v${release_count}"
+          echo "::set-output name=new_version::$version"
 
       - name: Download artifact
         uses: actions/download-artifact@v2
@@ -127,3 +119,4 @@ jobs:
               }
             }
             downloadReleaseAsset();
+
