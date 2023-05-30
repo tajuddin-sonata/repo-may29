@@ -57,6 +57,15 @@ jobs:
         run: |
           echo "new_version: ${{ steps.last_release.outputs.new_version }}"
           echo "GITHUB_WORKSPACE: ${{ github.workspace }}"
+      
+      - name: Check file permissions
+        run: |
+          ls -l "${{ github.workspace }}/version.txt"
+      
+      - name: Debug output
+        run: |
+          echo "new_version: ${{ steps.last_release.outputs.new_version }}"
+          echo "GITHUB_WORKSPACE: ${{ github.workspace }}"
 
       - name: Download artifact
         uses: actions/download-artifact@v2
