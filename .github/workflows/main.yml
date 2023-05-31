@@ -55,6 +55,7 @@ jobs:
           minor=${version_parts[1]}
           patch=$((version_parts[2]+1))
           new_version="v${major}.${minor}.${patch}"
+          echo "::set-output name=new_version::$new_version"
           echo "NEW_VERSION=${new_version}" >> $GITHUB_ENV
 
       - name: Download artifact
