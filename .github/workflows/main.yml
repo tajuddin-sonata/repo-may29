@@ -59,16 +59,18 @@ jobs:
       - name: Determine new version
         id: new_version
         run: |
-          last_version=${{ steps.last_release.outputs.last_version }}
-          base_version=${last_version#"v"}  # Remove the 'v' prefix if present
+          last_version="${{ steps.last_release.outputs.last_version }}"
+          base_version="${last_version#*v}"  # Remove the 'v' prefix and 'Release' prefix if present
           IFS='.' read -ra version_parts <<< "$base_version"
-          major=${version_parts[0]}
-          minor=${version_parts[1]}
-          patch=${version_parts[2]}
+          major="${version_parts[0]}"
+          minor="${version_parts[1]}"
+          patch="${version_parts[2]}"
           new_patch=$((patch+1))
           new_version="v${major}.${minor}.${new_patch}"
           echo "::set-output name=new_version::$new_version"
           echo "::set-output name=tag_name::${new_version}"
+        shell: bash
+
 
       - name: Create or Update release
         id: create_or_update_release
