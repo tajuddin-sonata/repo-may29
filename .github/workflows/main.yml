@@ -40,6 +40,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: create deployment directory
+        run: |
+          mkdir deployment
+          cp ./app.py deployment/app.py
+
       - name: Determine last release version
         id: last_release
         run: |
