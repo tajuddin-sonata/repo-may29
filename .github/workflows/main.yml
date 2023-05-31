@@ -50,12 +50,12 @@ jobs:
         id: new_version
         run: |
           last_version=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.0.0")
-          version_parts=($(echo "$last_version" | cut -d '.' -f 2-))
-          major=${version_parts[0]}
-          minor=${version_parts[1]}
-          patch=${version_parts[2]}
+          version_parts=($(echo "$last_version" | tr -d 'v' | tr '.' ' '))
+           major=${version_parts[0]}
+           minor=${version_parts[1]}
+           patch=${version_parts[2]}
            ((patch++))
-          new_version="v${major}.${minor}.${patch}"
+           new_version="v${major}.${minor}.${patch}"
            echo "NEW_VERSION=${new_version}" >> $GITHUB_ENV
         shell: bash
       - name: Download artifact
