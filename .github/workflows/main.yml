@@ -51,14 +51,17 @@ jobs:
         id: new_version
         run: |
           last_version=${{ steps.last_release.outputs.last_version }}
-          IFS='.' read -ra version_parts <<< "$last_version"
-          major=${version_parts[0]}
-          minor=${version_parts[1]}
-          patch=${version_parts[2]}
-          patch=$((patch+1))
-          new_version="${major}.${minor}.${patch}"
-          echo "::set-output name=new_version::$new_version"
-
+          if [[ $last_version == "v1.0.0" ]]; then
+            new_version="v1.0.0"
+          else
+            IFS='.' read -ra version_parts <<< "$last_version"
+            major=${version_parts[0]}
+            minor=${version_parts[1]}
+            patch=${version_parts[2]}
+            patch=$((patch+1))
+            new_version="${major}.${minor}.${patch}"
+          fi
+            echo "::set-output name=new_version::$new_version"
       - name: Download artifact
         uses: actions/download-artifact@v2
         with:
@@ -86,4 +89,3 @@ jobs:
           asset_path: deployment/app.py
           asset_name: app.py
           asset_content_type: text/x-python
-
