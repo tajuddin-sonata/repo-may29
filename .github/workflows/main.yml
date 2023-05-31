@@ -25,7 +25,6 @@ jobs:
         run: |
           mkdir deployment
           cp ./app.py deployment/app.py
-
       - name: Archive artifacts
         uses: actions/upload-artifact@v2
         with:
@@ -46,13 +45,12 @@ jobs:
           last_version=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.0.0")
           echo "::set-output name=last_version::$last_version"
           echo "LAST_VERSION=${last_version}" >> $GITHUB_ENV
-
       - name: Determine new version
         id: new_version
         run: |
           last_version=${{ env.LAST_VERSION }}
           if [[ $last_version == "v1.0.0" ]]; then
-            new_version="v1.0.0"
+            new_version="v1.0.1"
           else
             version_parts=($(echo "$last_version" | tr -d 'v' | tr '.' ' '))
             major=${version_parts[0]}
@@ -60,9 +58,7 @@ jobs:
             patch=$((version_parts[2]+1))
             new_version="v${major}.${minor}.${patch}"
           fi
-          timestamp=$(date +%Y%m%d)
-          echo "::set-output name=new_version::$new_version"-${timestamp}
-
+          echo "::set-output name=new_version::$new_version"
       - name: Download artifact
         uses: actions/download-artifact@v2
         with:
