@@ -43,6 +43,7 @@ jobs:
       - name: Determine new version
         id: new_version
         run: |
+          #
           last_version=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.0.0")
           version_parts=($(echo "$last_version" | tr -d 'v' | tr '.' ' '))
           major=${version_parts[0]}
