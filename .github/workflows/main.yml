@@ -79,4 +79,56 @@ jobs:
           release_name: Release ${{ env.NEW_VERSION }}
           draft: false
           prerelease: false
+      - name: Upload release asset
+        id: upload_asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: deployment/app.py
+          asset_name: app.py
+          asset_content_type: text/x-python
 
+  deploy:
+    needs: release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Download release asset
+        uses: actions/github-script@v4
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            async function downloadReleaseAsset() {
+              try {
+                const { data: releases } = await github.repos.listReleases({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  per_page: 1,
+                });
+                const release = releases[0];
+                const { data: assets } = await github.repos.listReleaseAssets({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  release_id: release.id,
+                });
+                const asset = assets.find(a => a.name === 'app.py');
+                const response = await github.repos.getReleaseAsset({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  asset_id: asset.id,
+                });
+                const deploymentPath = path.join(process.env.GITHUB_WORKSPACE, 'deployment');
+                fs.mkdirSync(deploymentPath, { recursive: true });
+                fs.writeFileSync(path.join(deploymentPath, 'app.py'), response.data);
+              } catch (error) {
+                console.error(error);
+                process.exit(1);
+              }
+            }
+            downloadReleaseAsset();
