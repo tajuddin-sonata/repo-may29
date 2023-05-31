@@ -74,7 +74,7 @@ jobs:
         id: create_or_update_release
         run: |
           new_version="${{ steps.new_version.outputs.new_version }}"
-          tag_name="v${new_version}"
+          tag_name="${new_version}"
           release_name="Release ${new_version}"
           response=$(curl --request GET --url "https://api.github.com/repos/tajuddin-sonata/repo-may29/releases/tags/${tag_name}" --header "Authorization: ***")
           if [[ "$response" == *"Not Found"* ]]; then
@@ -86,12 +86,11 @@ jobs:
             response=$(curl --request PATCH --url "https://api.github.com/repos/tajuddin-sonata/repo-may29/releases/${release_id}" --header "Authorization: ***" --header "Content-Type: application/json" --data "{\"tag_name\":\"${tag_name}\",\"name\":\"${release_name}\",\"draft\":false,\"prerelease\":false}")
           fi
           echo "::set-output name=release_id::$(echo "$response" | jq -r '.id')"
-        shell: bash
 
-          # # Upload app.py asset
-          # release_id=${{ steps.create_or_update_release.outputs.release_id }}
-          # upload_url=$(echo "$response" | jq -r '.upload_url' | sed -e "s/{?name,label}//")
-          # curl --request POST --url "$upload_url?name=app.py" --header "Authorization: Bearer ${{ secrets.PAT_TOKEN }}" --header "Content-Type: application/octet-stream" --upload-file deployment/app.py
+          # Upload app.py asset
+          release_id=${{ steps.create_or_update_release.outputs.release_id }}
+          upload_url=$(echo "$response" | jq -r '.upload_url' | sed -e "s/{?name,label}//")
+          curl --request POST --url "$upload_url?name=app.py" --header "Authorization: Bearer ${{ secrets.PAT_TOKEN }}" --header "Content-Type: application/octet-stream" --upload-file deployment/app.py
 
       - name: Download release asset
         id: download_asset
