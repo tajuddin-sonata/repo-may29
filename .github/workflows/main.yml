@@ -40,12 +40,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # - name: Determine last release version
-      #   id: last_release
-      #   run: |
-      #     last_version=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.1")
-      #     echo "::set-output name=last_version::$last_version"
-
       - name: Determine new version
         id: new_version
         run: |
@@ -55,9 +49,8 @@ jobs:
           minor=${version_parts[1]}
           patch=${version_parts[2]}
           ((patch++))
-          new_version="v${major}.${minor}$patch"
+          new_version="v${major}.${minor}${patch}"
           echo "NEW_VERSION=$new_version" >> $GITHUB_ENV
-        shell: bash
 
       - name: Download artifact
         uses: actions/download-artifact@v2
@@ -75,5 +68,4 @@ jobs:
           release_name: Release ${{ env.NEW_VERSION }}
           draft: false
           prerelease: false
-
 
