@@ -50,7 +50,7 @@ jobs:
         run: |
           last_version=${{ steps.last_release.outputs.last_version }}
           if [[ $last_version == "v1.0.0" ]]; then
-            new_version="v1.0.0"
+            new_version="v1.0.1"
           else
             version_parts=($(echo "$last_version" | tr -d 'v' | tr '.' ' '))
             major=${version_parts[0]}
