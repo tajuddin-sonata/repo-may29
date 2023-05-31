@@ -49,7 +49,7 @@ jobs:
       - name: Determine new version
         id: new_version
         run: |
-          last_version=${ steps.last_release.outputs.last_version }
+          last_version=${{ steps.last_release.outputs.last_version }}
           version_parts=($(echo "$last_version" | tr -d 'v' | tr '.' ' '))
           major=${version_parts[0]}
           minor=${version_parts[1]}
