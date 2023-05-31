@@ -23,6 +23,7 @@ jobs:
 
       - name: Build artifacts
         run: |
+          # make a directory
           mkdir deployment
           cp ./app.py deployment/app.py
 
