@@ -99,7 +99,7 @@ jobs:
           echo "Response: $response"
           URL=$(echo "$response" | jq -r '.assets[] | select(.name == "app.py") | .browser_download_url')
           if [[ -z "$URL" || "$URL" == "null" ]]; then
-            echo "App.py asset not found in the release."
+            echo "app.py asset not found in the release."
             exit 1
           fi
           echo "URL: $URL"
