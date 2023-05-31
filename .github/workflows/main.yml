@@ -60,7 +60,8 @@ jobs:
             patch=$((version_parts[2]+1))
             new_version="v${major}.${minor}.${patch}"
           fi
-          echo "::set-output name=new_version::$new_version"
+          timestamp=$(date +%Y%m%d%H%M%S)
+          echo "::set-output name=new_version::$new_version"-${timestamp}
 
       - name: Download artifact
         uses: actions/download-artifact@v2
