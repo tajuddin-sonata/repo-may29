@@ -1,4 +1,4 @@
-name: assessment
+name: Build and deployement
 
 on:
   pull_request:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, runner-1]
 
     steps:
       - name: Checkout code
@@ -23,16 +23,8 @@ jobs:
 
       - name: Build artifacts
         run: |
-          # Build your artifacts here
-          # For example, you can run any build commands or generate the necessary files
-          # In this case, let's assume app.py is the main file to deploy
-          # Copy or generate any other required files as well
-          # Run your build command or script
-          # python app.py
-          # Copy app.py to a deployment directory
           mkdir deployment
           cp ./app.py deployment/app.py
-
       - name: Archive artifacts
         uses: actions/upload-artifact@v2
         with:
@@ -41,18 +33,32 @@ jobs:
 
   release:
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, runner-1]
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Determine last release version
+        id: last_release
+        run: |
+          last_version=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.0.0")
+          echo "::set-output name=last_version::$last_version"
       - name: Determine new version
         id: new_version
         run: |
+          last_version=${{ steps.last_release.outputs.last_version }}
+          if [[ $last_version == "v1.0.0" ]]; then
+            new_version="v1.0.0"
+          else
+            version_parts=($(echo "$last_version" | tr -d 'v' | tr '.' ' '))
+            major=${version_parts[0]}
+            minor=${version_parts[1]}
+            patch=$((version_parts[2]+1))
+            new_version="v${major}.${minor}.${patch}"
+          fi
           timestamp=$(date +%Y%m%d%H%M%S)
-          echo "::set-output name=new_version::v1.0.0-${timestamp}"
-
+          echo "::set-output name=new_version::$new_version"-${timestamp}
       - name: Download artifact
         uses: actions/download-artifact@v2
         with:
@@ -69,7 +75,6 @@ jobs:
           release_name: Release ${{ steps.new_version.outputs.new_version }}
           draft: false
           prerelease: false
-
       - name: Upload release asset
         id: upload_asset
         uses: actions/upload-release-asset@v1
@@ -83,18 +88,26 @@ jobs:
 
   deploy:
     needs: release
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, runner-2]
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
 
       - name: Download release asset
         uses: actions/github-script@v4
         with:
           script: |
             const fs = require('fs');
-
+            const path = require('path');
             async function downloadReleaseAsset() {
               try {
                 const { data: releases } = await github.repos.listReleases({
@@ -102,27 +115,24 @@ jobs:
                   repo: context.repo.repo,
                   per_page: 1,
                 });
-
                 const release = releases[0];
-                const asset = release.assets.find(a => a.name === 'app.py');
-
-                const response = await github.repos.downloadReleaseAsset({
+                const { data: assets } = await github.repos.listReleaseAssets({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  release_id: release.id,
+                });
+                const asset = assets.find(a => a.name === 'app.py');
+                const response = await github.repos.getReleaseAsset({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   asset_id: asset.id,
-                  headers: {
-                    Accept: 'application/octet-stream',
-                  },
                 });
-
-                fs.writeFileSync('deployment/app.py', response.data);
+                const deploymentPath = path.join(process.env.GITHUB_WORKSPACE, 'deployment');
+                fs.mkdirSync(deploymentPath, { recursive: true });
+                fs.writeFileSync(path.join(deploymentPath, 'app.py'), response.data);
               } catch (error) {
                 console.error(error);
                 process.exit(1);
               }
             }
-
-            downloadReleaseAsset();
-
-
-
+            downloadReleaseAsset(); 
