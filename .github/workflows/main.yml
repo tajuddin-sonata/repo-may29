@@ -85,8 +85,7 @@ jobs:
         id: download_asset
         if: steps.create_or_update_release.outputs.release_id
         run: |
-          const { execSync } = require('child_process');
-          execSync('curl -sSL $(curl -sL https://api.github.com/repos/tajuddin-sonata/repo-may29/releases/latest | jq -r \'.assets[] | select(.name == "app.py") | .browser_download_url\') --output deployment/app.py')
+          curl -sSL $(curl -sL https://api.github.com/repos/tajuddin-sonata/repo-may29/releases/latest | jq -r '.assets[] | select(.name == "app.py") | .browser_download_url') --output deployment/app.py
 
   deploy:
     needs: release
