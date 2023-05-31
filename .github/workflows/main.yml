@@ -23,12 +23,8 @@ jobs:
 
       - name: Build artifacts
         run: |
-          # make a deployment directory to store artifacts
           mkdir deployment
           cp ./app.py deployment/app.py
-          # write a command to build the artifacts
-          # python app.py
-
       - name: Archive artifacts
         uses: actions/upload-artifact@v2
         with:
@@ -52,7 +48,6 @@ jobs:
             last_version="v1.0.0"
           fi
           echo "::set-output name=last_version::$last_version"
-
       - name: Determine new version
         id: new_version
         run: |
@@ -64,7 +59,6 @@ jobs:
           patch=$((patch+1))
           new_version="${major}.${minor}.${patch}"
           echo "::set-output name=new_version::$new_version"
-
       - name: Download artifact
         uses: actions/download-artifact@v2
         with:
@@ -95,7 +89,7 @@ jobs:
 
   deploy:
     needs: release
-    runs-on: [self hosted, runner-2]
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
