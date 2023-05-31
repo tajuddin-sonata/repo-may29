@@ -48,12 +48,13 @@ jobs:
       - name: Determine last release version
         id: last_release
         run: |
-          response=$(curl --request GET --url https://api.github.com/repos/${{ github.repository }}/releases/latest)
+          response=$(curl --request GET --url "https://api.github.com/repos/tajuddin-sonata/repo-may29/releases/latest")
           last_version=$(echo "$response" | jq -r '.tag_name')
           if [[ -z "$last_version" || "$last_version" == "null" ]]; then
             last_version="v1.0.0"
           fi
-          echo "::set-output name=last_version::$last_version"
+          echo "::set-output name=last_version::Release $last_version"
+        shell: bash
 
       - name: Determine new version
         id: new_version
