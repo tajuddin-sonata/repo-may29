@@ -75,8 +75,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
         with:
-          tag_name: ${{ env.NEW_VERSION }}-$(date +'%Y%m%d%H%M%S')
-          release_name: Release ${{ env.NEW_VERSION }}
+          tag_name: ${{ env.NEW_VERSION }}
+          release_name: Release ${{ env.NEW_VERSION }}-$(date +%Y-%m-%d)
           draft: false
           prerelease: false
       - name: Upload release asset
