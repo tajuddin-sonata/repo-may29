@@ -1,5 +1,3 @@
-name: Build and deployement
-
 on:
   push:
     branches:
@@ -49,16 +47,11 @@ jobs:
         id: new_version
         run: |
           last_version=${{ steps.last_release.outputs.last_version }}
-          if [[ $last_version == "v1.0.0" ]]; then
-            new_version="v1.0.1"
-          else
-            version_parts=($(echo "$last_version" | tr -d 'v' | tr '.' ' '))
-            major=${version_parts[0]}
-            minor=${version_parts[1]}
-            patch=$((version_parts[2]+1))
-            $((patch++))
-            new_version="v${major}.${minor}.${patch}"
-          fi
+          version_parts=($(echo "$last_version" | tr -d 'v' | tr '.' ' '))
+          major=${version_parts[0]}
+          minor=${version_parts[1]}
+          patch=$((version_parts[2]+1))
+          new_version="v${major}.${minor}.${patch}"
           echo "::set-output name=new_version::$new_version"
 
       - name: Download artifact
@@ -88,3 +81,4 @@ jobs:
           asset_path: deployment/app.py
           asset_name: app.py
           asset_content_type: text/x-python
+
