@@ -1,4 +1,4 @@
-name: Build and deployement
+name: Build and Deployment
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: [self-hosted, runner-1]
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
@@ -25,6 +25,7 @@ jobs:
         run: |
           mkdir deployment
           cp ./app.py deployment/app.py
+
       - name: Archive artifacts
         uses: actions/upload-artifact@v2
         with:
@@ -33,7 +34,7 @@ jobs:
 
   release:
     needs: build
-    runs-on: [self-hosted, runner-1]
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
@@ -48,53 +49,81 @@ jobs:
             last_version="v1.0.0"
           fi
           echo "::set-output name=last_version::$last_version"
+
       - name: Determine new version
         id: new_version
         run: |
           last_version=${{ steps.last_release.outputs.last_version }}
-          IFS='.' read -ra version_parts <<< "$last_version"
+          base_version=${last_version#"v"}  # Remove the 'v' prefix if present
+          IFS='.' read -ra version_parts <<< "$base_version"
           major=${version_parts[0]}
           minor=${version_parts[1]}
           patch=${version_parts[2]}
-          patch=$((patch+1))
-          new_version="${major}.${minor}.${patch}"
+          new_patch=$((patch+1))
+          new_version="v${major}.${minor}.${new_patch}"
           echo "::set-output name=new_version::$new_version"
-      - name: Download artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: my-artifacts
-          path: deployment
+          echo "::set-output name=tag_name::${new_version}"
 
-      - name: Create release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
-        with:
-          tag_name: ${{ steps.new_version.outputs.new_version }}
-          release_name: Release ${{ steps.new_version.outputs.new_version }}
-          draft: false
-          prerelease: false
+      - name: Create or Update release
+        id: create_or_update_release
+        run: |
+          new_version=${{ needs.release.outputs.new_version }}
+          tag_name="v${new_version}"
+          release_name="Release ${new_version}"
+          response=$(curl --request GET --url "https://api.github.com/repos/${{ github.repository }}/releases/tags/${tag_name}" --header "Authorization: Bearer ${{ secrets.PAT_TOKEN }}")
+          if [[ "$response" == *"Not Found"* ]]; then
+            # Create new release
+            response=$(curl --request POST --url "https://api.github.com/repos/${{ github.repository }}/releases" --header "Authorization: Bearer ${{ secrets.PAT_TOKEN }}" --header "Content-Type: application/json" --data "{\"tag_name\":\"${tag_name}\",\"name\":\"${release_name}\",\"draft\":false,\"prerelease\":false}")
+          else
+            # Update existing release
+            release_id=$(echo "$response" | jq -r '.id')
+            response=$(curl --request PATCH --url "https://api.github.com/repos/${{ github.repository }}/releases/${release_id}" --header "Authorization: Bearer ${{ secrets.PAT_TOKEN }}" --header "Content-Type: application/json" --data "{\"tag_name\":\"${tag_name}\",\"name\":\"${release_name}\",\"draft\":false,\"prerelease\":false}")
+          fi
+          echo "::set-output name=release_id::$(echo "$response" | jq -r '.id')"
 
-      - name: Upload release asset
-        id: upload_asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+      - name: Download release asset
+        id: download_asset
+        if: steps.create_or_update_release.outputs.release_id != null
+        uses: actions/github-script@v4
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: deployment/app.py
-          asset_name: app.py
-          asset_content_type: text/x-python
+          github-token: ${{ secrets.PAT_TOKEN }}
+          script: |
+            const { data: releases } = await github.repos.listReleases({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per_page: 1,
+            });
+            const release = releases[0];
+            const { data: assets } = await github.repos.listReleaseAssets({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: release.id,
+            });
+            const asset = assets.find(a => a.name === 'app.py');
+            if (asset) {
+              const response = await github.repos.downloadReleaseAsset({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                asset_id: asset.id,
+                headers: {
+                  Accept: 'application/octet-stream',
+                },
+              });
+              const fs = require('fs');
+              const path = require('path');
+              const deploymentPath = path.join(process.env.GITHUB_WORKSPACE, 'deployment');
+              fs.mkdirSync(deploymentPath, { recursive: true });
+              fs.writeFileSync(path.join(deploymentPath, 'app.py'), response.data);
+            }
 
   deploy:
     needs: release
-    runs-on: [self-hosted, runner-2]
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-        
+
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
@@ -103,37 +132,6 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Download release asset
-        uses: actions/github-script@v4
-        with:
-          script: |
-            const fs = require('fs');
-            const path = require('path');
-            async function downloadReleaseAsset() {
-              try {
-                const { data: releases } = await github.repos.listReleases({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  per_page: 1,
-                });
-                const release = releases[0];
-                const { data: assets } = await github.repos.listReleaseAssets({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  release_id: release.id,
-                });
-                const asset = assets.find(a => a.name === 'app.py');
-                const response = await github.repos.getReleaseAsset({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  asset_id: asset.id,
-                });
-                const deploymentPath = path.join(process.env.GITHUB_WORKSPACE, 'deployment');
-                fs.mkdirSync(deploymentPath, { recursive: true });
-                fs.writeFileSync(path.join(deploymentPath, 'app.py'), response.data);
-              } catch (error) {
-                console.error(error);
-                process.exit(1);
-              }
-            }
-            downloadReleaseAsset(); 
+      - name: Deploy
+        run: |
+          # python app.py
