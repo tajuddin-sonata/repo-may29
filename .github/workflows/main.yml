@@ -1,13 +1,13 @@
-name: assessment
+name: Build and deployement
 
 on:
-  push:
-    branches:
-      - feature/taj
+  pull_request:
+    types:
+      - closed
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted[runner-1]
 
     steps:
       - name: Checkout code
@@ -33,7 +33,7 @@ jobs:
 
   release:
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: self-hosted[runner-1]
 
     steps:
       - name: Checkout code
@@ -44,13 +44,13 @@ jobs:
         run: |
           last_version=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.0.0")
           echo "::set-output name=last_version::$last_version"
-          echo "LAST_VERSION=${last_version}" >> $GITHUB_ENV
+
       - name: Determine new version
         id: new_version
         run: |
-          last_version=${{ env.LAST_VERSION }}
+          last_version=${{ steps.last_release.outputs.last_version }}
           if [[ $last_version == "v1.0.0" ]]; then
-            new_version="v1.0.1"
+            new_version="v1.0.0"
           else
             version_parts=($(echo "$last_version" | tr -d 'v' | tr '.' ' '))
             major=${version_parts[0]}
@@ -58,7 +58,9 @@ jobs:
             patch=$((version_parts[2]+1))
             new_version="v${major}.${minor}.${patch}"
           fi
-          echo "::set-output name=new_version::$new_version"
+          timestamp=$(date +%Y%m%d%H%M%S)
+          echo "::set-output name=new_version::$new_version"-${timestamp}
+
       - name: Download artifact
         uses: actions/download-artifact@v2
         with:
@@ -88,7 +90,7 @@ jobs:
 
   deploy:
     needs: release
-    runs-on: ubuntu-latest
+    runs-on: self-hosted[runner-2]
 
     steps:
       - name: Checkout code
@@ -127,4 +129,4 @@ jobs:
                 process.exit(1);
               }
             }
-            downloadReleaseAsset();
+            downloadReleaseAsset(); 
