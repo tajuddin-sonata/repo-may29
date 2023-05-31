@@ -43,7 +43,7 @@ jobs:
           response=$(curl --request GET --url https://api.github.com/repos/${{ github.repository }}/releases/latest)
           last_version=$(echo "$response" | jq -r '.tag_name')
           if [[ -z "$last_version" || "$last_version" == "null" ]]; then
-            last_version="v1.0.0"
+            last_version="v1.0.-1"
           fi
           echo "::set-output name=last_version::$last_version"
 
